@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create & Remove Elements</title>
+</head>
+<body>
+    <button id="addBtn" on>Add Item</button>
+    <button id="removeBtn">Remove Last Item</button>
+    <ul id="list"></ul>
+
+    <script>
+        const list = document.getElementById("list");
+
+        document.getElementById("addBtn").addEventListener("click", function() {
+            let li = document.createElement("li");
+            li.textContent = "New Item";
+            list.appendChild(li);
+        });
+
+        document.getElementById("removeBtn").addEventListener("click", function() {
+            if (list.lastChild) {
+                list.removeChild(list.lastChild);
+            }
+        });
+    </script>
+</body>
+</html>

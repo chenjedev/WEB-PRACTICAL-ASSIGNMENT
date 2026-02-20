@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Events Example</title>
+</head>
+<body>
+    <input type="text" id="nameInput" placeholder="Type your name">
+    <p id="output"></p>
+
+    <script>
+        const input = document.getElementById("nameInput");
+        const output = document.getElementById("output");
+
+        // On typing
+        input.addEventListener("keyup", function() {
+            output.textContent = "Hello, " + input.value;
+        });
+
+        // On focus
+        input.addEventListener("focus", function() {
+            input.style.backgroundColor = "#e0f7fa";
+        });
+
+        // On blur (when leaving input)
+        input.addEventListener("blur", function() {
+            input.style.backgroundColor = "";
+        });
+    </script>
+</body>
+</html>
