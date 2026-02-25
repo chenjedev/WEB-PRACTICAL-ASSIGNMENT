@@ -1,6 +1,12 @@
 const students = [];
 
+// DOM Elements
 const studentForm = document.getElementById("studentForm");
+const formTitle = document.getElementById("formTitle");
+const submitBtn = document.getElementById("submitBtn");
+const cancelEdit = document.getElementById("cancelEdit");
+const editOldIdField = document.getElementById("editOldId");
+
 const performanceForm = document.getElementById("performanceForm");
 const studentTableBody = document.getElementById("studentTableBody");
 const emptyState = document.getElementById("emptyState");
@@ -10,6 +16,7 @@ const perfMsg = document.getElementById("perfMsg");
 const searchInput = document.getElementById("searchInput");
 const filterForm = document.getElementById("filterForm");
 
+// Utility Functions
 function showMessage(target, text, type) {
   target.textContent = text;
   target.className = `message ${type === "ok" ? "good" : "bad"}`;
@@ -36,10 +43,7 @@ function calculateOverallAverage(student) {
   let count = 0;
   student.performance.forEach((r) => {
     const values = Object.values(r.subjects);
-    values.forEach((v) => {
-      total += v;
-      count += 1;
-    });
+    values.forEach((v) => { total += v; count += 1; });
   });
   return count ? total / count : null;
 }
@@ -49,14 +53,13 @@ function validateScore(value) {
   return Number.isFinite(num) && num >= 0 && num <= 100;
 }
 
+// Rendering Function
 function renderStudents() {
   const searchTerm = searchInput.value.trim().toLowerCase();
   const formFilter = filterForm.value;
 
   const filtered = students.filter((s) => {
-    const matchesSearch =
-      s.id.toLowerCase().includes(searchTerm) ||
-      s.name.toLowerCase().includes(searchTerm);
+    const matchesSearch = s.id.toLowerCase().includes(searchTerm) || s.name.toLowerCase().includes(searchTerm);
     const matchesForm = !formFilter || String(s.form) === formFilter;
     return matchesSearch && matchesForm;
   });
@@ -73,10 +76,11 @@ function renderStudents() {
       <td>${avg === null ? "N/A" : avg.toFixed(2)}%</td>
       <td>
         <div class="actions">
-          <button class="btn-sm btn-ok" data-action="view" data-id="${student.id}">View</button>
+          <button class="btn-sm" data-action="view" data-id="${student.id}">View</button>
+          <button class="btn-sm" data-action="edit" data-id="${student.id}">Edit</button>
           <button class="btn-sm" data-action="prefill" data-id="${student.id}">Add Result</button>
           <button class="btn-sm" data-action="promote" data-id="${student.id}">Promote</button>
-          <button class="btn-sm btn-danger" data-action="delete" data-id="${student.id}">Delete</button>
+          <button class="btn-sm" data-action="delete" data-id="${student.id}">Delete</button>
         </div>
       </td>
     `;
@@ -97,168 +101,150 @@ function renderStudentDetails(student) {
   const rows = performances.length
     ? performances.map((p) => {
         const avg = calculateFormAverage(p);
-        return `
-          <tr>
-            <td>Form ${p.form}</td>
-            <td>${p.subjects.math}</td>
-            <td>${p.subjects.english}</td>
-            <td>${p.subjects.science}</td>
-            <td>${p.subjects.social}</td>
-            <td>${avg.toFixed(2)}%</td>
-          </tr>
-        `;
+        return `<tr><td>Form ${p.form}</td><td>${p.subjects.math}</td><td>${p.subjects.physics}</td><td>${p.subjects.chemistry}</td><td>${p.subjects.biology}</td><td>${avg.toFixed(2)}%</td></tr>`;
       }).join("")
-    : `<tr><td colspan="6" class="muted">No performance records yet.</td></tr>`;
+    : `<tr><td colspan="6" class="muted">No science results recorded yet.</td></tr>`;
 
   detailsBox.className = "";
   detailsBox.innerHTML = `
-    <p><strong>ID:</strong> ${student.id}</p>
-    <p><strong>Name:</strong> ${student.name}</p>
-    <p><strong>Gender:</strong> ${student.gender}</p>
-    <p><strong>Age:</strong> ${student.age}</p>
-    <p><strong>Current Form:</strong> Form ${student.form}</p>
-    <p><strong>Overall Average:</strong> ${
-      calculateOverallAverage(student) === null
-        ? "N/A"
-        : calculateOverallAverage(student).toFixed(2) + "%"
-    }</p>
-    <h3>Performance by Form</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Form</th>
-          <th>Mathematics</th>
-          <th>English</th>
-          <th>Science</th>
-          <th>Social Studies</th>
-          <th>Average</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
+    <div style="border-left: 4px solid var(--primary); padding-left: 15px;">
+        <p><strong>ID:</strong> ${student.id}</p>
+        <p><strong>Name:</strong> ${student.name}</p>
+        <p><strong>Current Level:</strong> Form ${student.form}</p>
+        <p><strong>Overall Average:</strong> ${calculateOverallAverage(student) === null ? "N/A" : calculateOverallAverage(student).toFixed(2) + "%"}</p>
+    </div>
+    <h3 style="margin: 20px 0 10px 0; font-size: 1rem;">Academic Science Record</h3>
+    <div class="table-responsive">
+      <table>
+        <thead><tr><th>Form</th><th>Math</th><th>Phys</th><th>Chem</th><th>Bio</th><th>Avg</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
   `;
 }
 
+// Event Listeners
 studentForm.addEventListener("submit", (e) => {
   e.preventDefault();
-
   const name = document.getElementById("name").value.trim();
   const id = normalizeId(document.getElementById("studentId").value);
   const gender = document.getElementById("gender").value;
   const age = Number(document.getElementById("age").value);
   const form = Number(document.getElementById("formLevel").value);
+  const oldId = editOldIdField.value;
 
   if (!name || !id || !gender || !Number.isFinite(age) || !form) {
-    showMessage(formMsg, "Please complete all registration fields.", "bad");
+    showMessage(formMsg, "Please complete all fields.", "bad");
     return;
   }
 
-  if (age < 10 || age > 25) {
-    showMessage(formMsg, "Age must be between 10 and 25.", "bad");
-    return;
-  }
-
-  if (findStudentById(id)) {
-    showMessage(formMsg, `Student ID ${id} already exists.`, "bad");
-    return;
-  }
-
-  const student = {
-    id,
-    name,
-    gender,
-    age,
-    form,
-    performance: []
-  };
-
-  students.push(student);
-  showMessage(formMsg, `Student ${name} (${id}) registered successfully.`, "ok");
-  studentForm.reset();
-  renderStudents();
-});
-
-performanceForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const studentId = normalizeId(document.getElementById("perfStudentId").value);
-  const form = Number(document.getElementById("perfForm").value);
-  const math = Number(document.getElementById("math").value);
-  const english = Number(document.getElementById("english").value);
-  const science = Number(document.getElementById("science").value);
-  const social = Number(document.getElementById("social").value);
-
-  const student = findStudentById(studentId);
-  if (!student) {
-    showMessage(perfMsg, `Student ID ${studentId} was not found.`, "bad");
-    return;
-  }
-
-  if (!form || ![math, english, science, social].every(validateScore)) {
-    showMessage(perfMsg, "Enter valid scores from 0 to 100 for all subjects.", "bad");
-    return;
-  }
-
-  const payload = {
-    form,
-    subjects: { math, english, science, social }
-  };
-
-  const existing = student.performance.find((p) => p.form === form);
-  if (existing) {
-    existing.subjects = payload.subjects;
-    showMessage(perfMsg, `Updated Form ${form} performance for ${student.name}.`, "ok");
+  if (oldId) {
+    // EDIT MODE
+    const studentIdx = students.findIndex(s => s.id === oldId);
+    if (id !== oldId && findStudentById(id)) {
+        showMessage(formMsg, "New ID already exists.", "bad");
+        return;
+    }
+    students[studentIdx] = { ...students[studentIdx], name, id, gender, age, form };
+    showMessage(formMsg, "Student details updated.", "ok");
+    resetForm();
   } else {
-    student.performance.push(payload);
-    showMessage(perfMsg, `Added Form ${form} performance for ${student.name}.`, "ok");
+    // REGISTER MODE
+    if (findStudentById(id)) {
+      showMessage(formMsg, "ID already exists.", "bad");
+      return;
+    }
+    students.push({ id, name, gender, age, form, performance: [] });
+    showMessage(formMsg, `Registered ${name}.`, "ok");
+    studentForm.reset();
   }
-
-  performanceForm.reset();
   renderStudents();
-  renderStudentDetails(student);
 });
+
+function resetForm() {
+    studentForm.reset();
+    editOldIdField.value = "";
+    formTitle.textContent = "Student Registration";
+    submitBtn.textContent = "Register Student";
+    cancelEdit.style.display = "none";
+}
+
+cancelEdit.addEventListener("click", resetForm);
 
 studentTableBody.addEventListener("click", (e) => {
   const target = e.target;
-  if (!(target instanceof HTMLButtonElement)) return;
-
   const id = target.dataset.id;
   const action = target.dataset.action;
   const student = findStudentById(id);
   if (!student) return;
 
-  if (action === "view") {
-    renderStudentDetails(student);
+  if (action === "view") renderStudentDetails(student);
+  
+  if (action === "edit") {
+    // Fill the registration form with student data
+    document.getElementById("name").value = student.name;
+    document.getElementById("studentId").value = student.id;
+    document.getElementById("gender").value = student.gender;
+    document.getElementById("age").value = student.age;
+    document.getElementById("formLevel").value = student.form;
+    
+    // Change UI to Edit Mode
+    editOldIdField.value = student.id;
+    formTitle.textContent = "Edit Student Details";
+    submitBtn.textContent = "Save Changes";
+    cancelEdit.style.display = "block";
+    
+    document.querySelector('.registration-area').scrollIntoView({behavior: 'smooth'});
   }
 
   if (action === "prefill") {
     document.getElementById("perfStudentId").value = student.id;
     document.getElementById("perfForm").value = String(student.form);
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    document.querySelector('.performance-area').scrollIntoView({behavior: 'smooth'});
   }
-
+  
   if (action === "promote") {
-    if (student.form >= 4) {
-      alert(`${student.name} is already in Form 4.`);
-      return;
+    if (student.form < 4) {
+      student.form += 1;
+      renderStudents();
+      renderStudentDetails(student);
     }
-    student.form += 1;
-    renderStudents();
-    renderStudentDetails(student);
+  }
+  
+  if (action === "delete") {
+    if (confirm(`Delete ${student.name}?`)) {
+      const idx = students.findIndex((s) => s.id === student.id);
+      students.splice(idx, 1);
+      renderStudents();
+    }
+  }
+});
+
+performanceForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const studentId = normalizeId(document.getElementById("perfStudentId").value);
+  const form = Number(document.getElementById("perfForm").value);
+  const math = Number(document.getElementById("math").value);
+  const physics = Number(document.getElementById("physics").value);
+  const chemistry = Number(document.getElementById("chemistry").value);
+  const biology = Number(document.getElementById("biology").value);
+
+  const student = findStudentById(studentId);
+  if (!student) { showMessage(perfMsg, "Student not found.", "bad"); return; }
+  if (!form || ![math, physics, chemistry, biology].every(validateScore)) {
+    showMessage(perfMsg, "Invalid scores.", "bad"); return;
   }
 
-  if (action === "delete") {
-    const ok = confirm(`Delete ${student.name} (${student.id})?`);
-    if (!ok) return;
-    const idx = students.findIndex((s) => s.id === student.id);
-    if (idx >= 0) students.splice(idx, 1);
-    renderStudents();
-    detailsBox.className = "muted";
-    detailsBox.textContent = "Select \"View\" from the student list to see full details.";
-  }
+  const existing = student.performance.find((p) => p.form === form);
+  const subjects = { math, physics, chemistry, biology };
+  if (existing) { existing.subjects = subjects; } 
+  else { student.performance.push({ form, subjects }); }
+
+  showMessage(perfMsg, "Results updated.", "ok");
+  performanceForm.reset();
+  renderStudents();
+  renderStudentDetails(student);
 });
 
 searchInput.addEventListener("input", renderStudents);
 filterForm.addEventListener("change", renderStudents);
-
-renderStudents();

@@ -3,131 +3,148 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>O-Level Student Management System</title>
-  <link href="style.css" rel="stylesheet">
+  <title>EduTrack Pro | O-Level Science Management</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <section class="card">
-      <h1>O-Level Student Management System</h1>
-      <p class="subtitle">Form 1 to Form 4 student lifecycle and academic performance tracking.</p>
-    </section>
 
-    <section class="card">
-      <h2>1) Student Registration</h2>
-      <form id="studentForm" novalidate>
-        <div class="grid">
-          <div>
-            <label for="name">Student Full Name</label>
-            <input id="name" type="text" placeholder="e.g. John Doe" required />
-          </div>
-          <div>
-            <label for="studentId">Student ID</label>
-            <input id="studentId" type="text" placeholder="e.g. S001" required />
-          </div>
-          <div>
-            <label for="gender">Gender</label>
-            <select id="gender" required>
-              <option value="">Select</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-          </div>
-          <div>
-            <label for="age">Age</label>
-            <input id="age" type="number" min="10" max="25" required />
-          </div>
-          <div>
-            <label for="formLevel">Current Form</label>
-            <select id="formLevel" required>
-              <option value="">Select</option>
-              <option value="1">Form 1</option>
-              <option value="2">Form 2</option>
-              <option value="3">Form 3</option>
-              <option value="4">Form 4</option>
-            </select>
-          </div>
-        </div>
-        <div style="margin-top: 10px; max-width: 240px;">
-          <button type="submit">Register Student</button>
-        </div>
-      </form>
-      <div id="formMsg" class="message"></div>
-    </section>
-
-    <section class="card">
-      <h2>2) Student List</h2>
-      <div class="toolbar">
-        <input id="searchInput" type="text" placeholder="Search by ID or name" />
-        <select id="filterForm">
-          <option value="">All Forms</option>
-          <option value="1">Form 1</option>
-          <option value="2">Form 2</option>
-          <option value="3">Form 3</option>
-          <option value="4">Form 4</option>
-        </select>
+  <div class="app-container">
+    <header class="main-header">
+      <div class="header-content">
+        <h1>EduTrack<span>Pro</span></h1>
+        <p>Science Stream Student Management System</p>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Student ID</th>
-            <th>Name</th>
-            <th>Current Form</th>
-            <th>Average Score</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="studentTableBody"></tbody>
-      </table>
-      <p id="emptyState" class="muted">No students registered yet.</p>
-    </section>
+    </header>
 
-    <section class="card">
-      <h2>3) Academic Performance</h2>
-      <form id="performanceForm" novalidate>
-        <div class="grid">
-          <div>
-            <label for="perfStudentId">Student ID</label>
-            <input id="perfStudentId" type="text" placeholder="Use ID from list" required />
+    <main class="dashboard-grid">
+      <section class="card registration-area">
+        <div class="card-header">
+          <h2 id="formTitle">Student Registration</h2>
+        </div>
+        <form id="studentForm" novalidate>
+          <input type="hidden" id="editOldId" value="">
+          
+          <div class="form-grid">
+            <div class="input-group">
+              <label for="name">Full Name</label>
+              <input id="name" type="text" placeholder="John Doe" required />
+            </div>
+            <div class="input-group">
+              <label for="studentId">Student ID</label>
+              <input id="studentId" type="text" placeholder="S001" required />
+            </div>
+            <div class="input-group">
+              <label for="gender">Gender</label>
+              <select id="gender" required>
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="age">Age</label>
+              <input id="age" type="number" min="10" max="25" required />
+            </div>
+            <div class="input-group">
+              <label for="formLevel">Form Level</label>
+              <select id="formLevel" required>
+                <option value="">Select</option>
+                <option value="1">Form 1</option>
+                <option value="2">Form 2</option>
+                <option value="3">Form 3</option>
+                <option value="4">Form 4</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label for="perfForm">Form</label>
-            <select id="perfForm" required>
-              <option value="">Select</option>
+          <button type="submit" id="submitBtn" class="btn-primary">Register Student</button>
+          <button type="button" id="cancelEdit" class="btn-sm" style="display:none; margin-top:10px; background:#64748b; width:100%">Cancel Edit</button>
+        </form>
+        <div id="formMsg" class="message"></div>
+      </section>
+
+      <section class="card performance-area">
+        <div class="card-header">
+          <h2>Academic Entry (Science)</h2>
+        </div>
+        <form id="performanceForm" novalidate>
+          <div class="form-grid">
+            <div class="input-group">
+              <label for="perfStudentId">Student ID</label>
+              <input id="perfStudentId" type="text" placeholder="ID from list" required />
+            </div>
+            <div class="input-group">
+              <label for="perfForm">Form</label>
+              <select id="perfForm" required>
+                <option value="">Select</option>
+                <option value="1">Form 1</option>
+                <option value="2">Form 2</option>
+                <option value="3">Form 3</option>
+                <option value="4">Form 4</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="math">Math</label>
+              <input id="math" type="number" min="0" max="100" required />
+            </div>
+            <div class="input-group">
+              <label for="physics">Physics</label>
+              <input id="physics" type="number" min="0" max="100" required />
+            </div>
+            <div class="input-group">
+              <label for="chemistry">Chemistry</label>
+              <input id="chemistry" type="number" min="0" max="100" required />
+            </div>
+            <div class="input-group">
+              <label for="biology">Biology</label>
+              <input id="biology" type="number" min="0" max="100" required />
+            </div>
+          </div>
+          <button type="submit" class="btn-secondary">Update Performance</button>
+        </form>
+        <div id="perfMsg" class="message"></div>
+      </section>
+
+      <section class="card list-area">
+        <div class="card-header flex-header">
+          <h2>Student Directory</h2>
+          <div class="toolbar">
+            <input id="searchInput" type="text" placeholder="Search name or ID..." />
+            <select id="filterForm">
+              <option value="">All Forms</option>
               <option value="1">Form 1</option>
               <option value="2">Form 2</option>
               <option value="3">Form 3</option>
               <option value="4">Form 4</option>
             </select>
           </div>
-          <div>
-            <label for="math">Mathematics</label>
-            <input id="math" type="number" min="0" max="100" required />
-          </div>
-          <div>
-            <label for="english">English</label>
-            <input id="english" type="number" min="0" max="100" required />
-          </div>
-          <div>
-            <label for="science">Science</label>
-            <input id="science" type="number" min="0" max="100" required />
-          </div>
-          <div>
-            <label for="social">Social Studies</label>
-            <input id="social" type="number" min="0" max="100" required />
-          </div>
         </div>
-        <div style="margin-top: 10px; max-width: 280px;">
-          <button type="submit">Add / Update Performance</button>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Form</th>
+                <th>Avg %</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+          </table>
         </div>
-      </form>
-      <div id="perfMsg" class="message"></div>
-    </section>
+        <p id="emptyState" class="muted">No student records found.</p>
+      </section>
 
-    <section class="card">
-      <h2>4) Student Details</h2>
-      <div id="detailsBox" class="muted">Select "View" from the student list to see full details.</div>
-    </section>
+      <section class="card details-area">
+        <div class="card-header">
+          <h2>Student Profile & History</h2>
+        </div>
+        <div id="detailsBox" class="details-content">
+          <p class="muted">Select "View" from the list to display full academic history.</p>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script src="script.js"></script>
